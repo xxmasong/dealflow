@@ -15,7 +15,6 @@ import {
   Typography,
 } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
-import { LineChart } from '@mui/x-charts/LineChart';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { REPORT } from '../../graphql/documents';
@@ -111,6 +110,7 @@ export function DashboardPage() {
                       {
                         data: data.stages.map((s) => s.amountCents / 100),
                         label: 'Deal value',
+                        color: '#1f4fd8',
                         valueFormatter: (v) => formatMoney((v ?? 0) * 100),
                       },
                     ]}
@@ -126,13 +126,13 @@ export function DashboardPage() {
                   <Typography variant="subtitle1" fontWeight={650}>
                     Activity
                   </Typography>
-                  <LineChart
+                  <BarChart
                     height={300}
-                    xAxis={[{ scaleType: 'point', data: data.activity.map((a) => a.date.slice(5)) }]}
+                    xAxis={[{ scaleType: 'band', data: data.activity.map((a) => a.date.slice(5)) }]}
                     series={[
-                      { data: data.activity.map((a) => a.created), label: 'Created', showMark: false },
-                      { data: data.activity.map((a) => a.moved), label: 'Moved', showMark: false },
-                      { data: data.activity.map((a) => a.edited), label: 'Edited', showMark: false },
+                      { data: data.activity.map((a) => a.created), label: 'Created', stack: 'all', color: '#0f8a6a' },
+                      { data: data.activity.map((a) => a.moved), label: 'Moved', stack: 'all', color: '#1f4fd8' },
+                      { data: data.activity.map((a) => a.edited), label: 'Edited', stack: 'all', color: '#9aa8c7' },
                     ]}
                   />
                 </CardContent>
