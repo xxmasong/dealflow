@@ -17,7 +17,7 @@ CREATE TABLE "deal_history" (
 	"field" text,
 	"old_value" jsonb,
 	"new_value" jsonb,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+	"created_at" timestamp with time zone DEFAULT clock_timestamp() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "deals" (

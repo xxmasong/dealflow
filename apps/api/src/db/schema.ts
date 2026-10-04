@@ -121,7 +121,9 @@ export const dealHistory = pgTable(
     field: text('field'),
     oldValue: jsonb('old_value').$type<unknown>(),
     newValue: jsonb('new_value').$type<unknown>(),
-    createdAt: createdAt(),
+    // clock_timestamp() rather than now(): several entries written in one
+    // transaction still get distinct, ordered timestamps.
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`clock_timestamp()`),
   },
   (t) => [
     index('deal_history_deal_idx').on(t.dealId, t.createdAt),
