@@ -7,7 +7,8 @@ export type Columns = Record<string, BoardDeal[]>;
 export function buildColumns(stages: Stage[], deals: BoardDeal[]): Columns {
   const columns: Columns = Object.fromEntries(stages.map((s) => [s.id, []]));
   for (const deal of deals) columns[deal.stage.id]?.push(deal);
-  for (const list of Object.values(columns)) list.sort((a, b) => (a.position < b.position ? -1 : a.position > b.position ? 1 : 0));
+  for (const list of Object.values(columns))
+    list.sort((a, b) => (a.position < b.position ? -1 : a.position > b.position ? 1 : 0));
   return columns;
 }
 

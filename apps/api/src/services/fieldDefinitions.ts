@@ -36,7 +36,11 @@ export function listFieldDefinitions(db: Db, orgId: string, includeArchived = fa
   const where = includeArchived
     ? eq(fieldDefinitions.orgId, orgId)
     : and(eq(fieldDefinitions.orgId, orgId), eq(fieldDefinitions.archived, false));
-  return db.select().from(fieldDefinitions).where(where).orderBy(asc(fieldDefinitions.position), asc(fieldDefinitions.label));
+  return db
+    .select()
+    .from(fieldDefinitions)
+    .where(where)
+    .orderBy(asc(fieldDefinitions.position), asc(fieldDefinitions.label));
 }
 
 export async function createFieldDefinition(db: Db, viewer: Viewer, input: unknown) {

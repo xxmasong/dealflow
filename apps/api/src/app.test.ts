@@ -68,7 +68,11 @@ describe('GraphQL API', () => {
     expect(moved.data.moveDeal.stage.name).toBe('Term sheet');
     expect(moved.data.moveDeal.history[0]).toMatchObject({ kind: 'stage_changed', newValue: { name: 'Term sheet' } });
 
-    const report = await gql(`{ report { winRate stages { stage { name } dealCount } activity(days: 7) { moved } } }`, {}, token);
+    const report = await gql(
+      `{ report { winRate stages { stage { name } dealCount } activity(days: 7) { moved } } }`,
+      {},
+      token,
+    );
     expect(report.errors).toBeUndefined();
     expect(report.data.report.stages).toHaveLength(6);
     expect(report.data.report.activity.at(-1).moved).toBeGreaterThanOrEqual(1);

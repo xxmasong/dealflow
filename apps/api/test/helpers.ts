@@ -18,7 +18,10 @@ export interface Fixture {
  */
 async function seed(db: Database['db']): Promise<Fixture> {
   const tag = crypto.randomUUID().slice(0, 8);
-  const [org, other] = await db.insert(organizations).values([{ name: 'Acme Ventures' }, { name: 'Other Fund' }]).returning();
+  const [org, other] = await db
+    .insert(organizations)
+    .values([{ name: 'Acme Ventures' }, { name: 'Other Fund' }])
+    .returning();
   const [me, them] = await db
     .insert(users)
     .values([

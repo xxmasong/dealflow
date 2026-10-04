@@ -28,9 +28,9 @@ describe('createDeal', () => {
   });
 
   it('refuses stages from another organisation', async () => {
-    await expect(createDeal(f.db, f.otherViewer, { name: 'X', company: 'Y', stageId: f.stageIds.lead })).rejects.toThrow(
-      /Stage not found/,
-    );
+    await expect(
+      createDeal(f.db, f.otherViewer, { name: 'X', company: 'Y', stageId: f.stageIds.lead }),
+    ).rejects.toThrow(/Stage not found/);
   });
 });
 

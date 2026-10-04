@@ -1,7 +1,15 @@
 import DataLoader from 'dataloader';
 import { inArray } from 'drizzle-orm';
 import type { Db } from '../db/client.js';
-import { fieldDefinitions, stages, users, type DealFieldValue, type FieldDefinition, type Stage, type User } from '../db/schema.js';
+import {
+  fieldDefinitions,
+  stages,
+  users,
+  type DealFieldValue,
+  type FieldDefinition,
+  type Stage,
+  type User,
+} from '../db/schema.js';
 import { fieldValuesFor } from '../services/deals.js';
 
 function byId<T extends { id: string }>(rows: T[], ids: readonly string[]): (T | null)[] {
@@ -16,13 +24,31 @@ function byId<T extends { id: string }>(rows: T[], ids: readonly string[]): (T |
 export function createLoaders(db: Db) {
   return {
     stage: new DataLoader<string, Stage | null>(async (ids) =>
-      byId(await db.select().from(stages).where(inArray(stages.id, [...ids])), ids),
+      byId(
+        await db
+          .select()
+          .from(stages)
+          .where(inArray(stages.id, [...ids])),
+        ids,
+      ),
     ),
     user: new DataLoader<string, User | null>(async (ids) =>
-      byId(await db.select().from(users).where(inArray(users.id, [...ids])), ids),
+      byId(
+        await db
+          .select()
+          .from(users)
+          .where(inArray(users.id, [...ids])),
+        ids,
+      ),
     ),
     field: new DataLoader<string, FieldDefinition | null>(async (ids) =>
-      byId(await db.select().from(fieldDefinitions).where(inArray(fieldDefinitions.id, [...ids])), ids),
+      byId(
+        await db
+          .select()
+          .from(fieldDefinitions)
+          .where(inArray(fieldDefinitions.id, [...ids])),
+        ids,
+      ),
     ),
     fieldValues: new DataLoader<string, DealFieldValue[]>(async (dealIds) => {
       const rows = await fieldValuesFor(db, dealIds);

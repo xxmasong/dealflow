@@ -21,7 +21,9 @@ function show(value: unknown): string {
 }
 
 function stageName(value: unknown): string {
-  return typeof value === 'object' && value !== null && 'name' in value ? String((value as { name: unknown }).name) : '?';
+  return typeof value === 'object' && value !== null && 'name' in value
+    ? String((value as { name: unknown }).name)
+    : '?';
 }
 
 /** One readable sentence per history entry, e.g. "moved from Lead to Diligence". */

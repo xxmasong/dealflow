@@ -2,15 +2,7 @@ import { and, asc, desc, eq, gt, ilike, inArray, lt, or, sql } from 'drizzle-orm
 import { z } from 'zod';
 import type { Viewer } from '../context.js';
 import type { Db } from '../db/client.js';
-import {
-  dealFieldValues,
-  dealHistory,
-  deals,
-  fieldDefinitions,
-  stages,
-  users,
-  type Deal,
-} from '../db/schema.js';
+import { dealFieldValues, dealHistory, deals, fieldDefinitions, stages, users, type Deal } from '../db/schema.js';
 import { badInput, notFound } from '../lib/errors.js';
 import { keyBetween } from '../lib/position.js';
 import { parseFieldValue } from './fields.js';
@@ -88,7 +80,11 @@ async function lastPosition(db: Executor, orgId: string, stageId: string) {
   return last?.position ?? null;
 }
 
-export async function listDeals(db: Db, orgId: string, filter: { stageId?: string | null; search?: string | null } = {}) {
+export async function listDeals(
+  db: Db,
+  orgId: string,
+  filter: { stageId?: string | null; search?: string | null } = {},
+) {
   const conditions = [eq(deals.orgId, orgId)];
   if (filter.stageId) conditions.push(eq(deals.stageId, filter.stageId));
   const term = filter.search?.trim();
@@ -273,7 +269,10 @@ export async function setFieldValue(db: Db, viewer: Viewer, args: { dealId: stri
 
 export async function fieldValuesFor(db: Db, dealIds: readonly string[]) {
   if (dealIds.length === 0) return [];
-  return db.select().from(dealFieldValues).where(inArray(dealFieldValues.dealId, [...dealIds]));
+  return db
+    .select()
+    .from(dealFieldValues)
+    .where(inArray(dealFieldValues.dealId, [...dealIds]));
 }
 
 export async function historyFor(db: Db, orgId: string, dealId: string) {

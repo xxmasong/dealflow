@@ -8,12 +8,36 @@ export const DEMO_EMAIL = 'demo@dealflow.dev';
 export const DEMO_PASSWORD = 'demo1234';
 
 const COMPANIES = [
-  'Northwind Analytics', 'Contoso Health', 'Fabrikam Robotics', 'Tailspin Logistics', 'Wingtip Energy',
-  'Adatum Security', 'Litware Learning', 'Proseware Payments', 'Lucerne Bio', 'Coho Foods',
-  'Trey Research', 'Margie Travel', 'Woodgrove Fintech', 'Alpine Ski Labs', 'Blue Yonder Air',
-  'Fourth Coffee', 'Humongous Insurance', 'Wide World Imports', 'Graphic Design Institute', 'Relecloud',
-  'VanArsdel Media', 'Southridge Video', 'City Power & Light', 'Lamna Healthcare', 'Nod Publishers',
-  'Bellows College', 'Datum Corporation', 'First Up Consultants', 'Best For You Organics', 'Consolidated Messenger',
+  'Northwind Analytics',
+  'Contoso Health',
+  'Fabrikam Robotics',
+  'Tailspin Logistics',
+  'Wingtip Energy',
+  'Adatum Security',
+  'Litware Learning',
+  'Proseware Payments',
+  'Lucerne Bio',
+  'Coho Foods',
+  'Trey Research',
+  'Margie Travel',
+  'Woodgrove Fintech',
+  'Alpine Ski Labs',
+  'Blue Yonder Air',
+  'Fourth Coffee',
+  'Humongous Insurance',
+  'Wide World Imports',
+  'Graphic Design Institute',
+  'Relecloud',
+  'VanArsdel Media',
+  'Southridge Video',
+  'City Power & Light',
+  'Lamna Healthcare',
+  'Nod Publishers',
+  'Bellows College',
+  'Datum Corporation',
+  'First Up Consultants',
+  'Best For You Organics',
+  'Consolidated Messenger',
 ];
 const ROUNDS = ['Pre-seed', 'Seed', 'Series A', 'Series B'];
 const SECTORS = ['Fintech', 'Health', 'Climate', 'SaaS', 'Logistics', 'Consumer'];
@@ -43,8 +67,18 @@ export async function seedDemo(db: Db): Promise<void> {
       .insert(users)
       .values([
         { orgId, email: DEMO_EMAIL, name: 'Demo Partner', passwordHash: await hashPassword(DEMO_PASSWORD) },
-        { orgId, email: 'analyst@dealflow.dev', name: 'Riley Analyst', passwordHash: await hashPassword(crypto.randomUUID()) },
-        { orgId, email: 'principal@dealflow.dev', name: 'Sam Principal', passwordHash: await hashPassword(crypto.randomUUID()) },
+        {
+          orgId,
+          email: 'analyst@dealflow.dev',
+          name: 'Riley Analyst',
+          passwordHash: await hashPassword(crypto.randomUUID()),
+        },
+        {
+          orgId,
+          email: 'principal@dealflow.dev',
+          name: 'Sam Principal',
+          passwordHash: await hashPassword(crypto.randomUUID()),
+        },
       ])
       .returning();
 
@@ -119,7 +153,14 @@ export async function seedDemo(db: Db): Promise<void> {
       // Back-dated history so the dashboard has something to show.
       let at = created.getTime();
       const entries: (typeof dealHistory.$inferInsert)[] = [
-        { orgId, dealId, actorId: owner.id, kind: 'created', newValue: { stage: { id: plan.path[0]!.id, name: plan.path[0]!.name }, amountCents }, createdAt: new Date(at) },
+        {
+          orgId,
+          dealId,
+          actorId: owner.id,
+          kind: 'created',
+          newValue: { stage: { id: plan.path[0]!.id, name: plan.path[0]!.name }, amountCents },
+          createdAt: new Date(at),
+        },
       ];
       for (let i = 1; i < plan.path.length; i++) {
         at += (2 + Math.floor(rand() * 12)) * DAY;
@@ -127,13 +168,24 @@ export async function seedDemo(db: Db): Promise<void> {
         const from = plan.path[i - 1]!;
         const to = plan.path[i]!;
         entries.push({
-          orgId, dealId, actorId: pick(team).id, kind: 'stage_changed',
-          oldValue: { id: from.id, name: from.name }, newValue: { id: to.id, name: to.name }, createdAt: new Date(at),
+          orgId,
+          dealId,
+          actorId: pick(team).id,
+          kind: 'stage_changed',
+          oldValue: { id: from.id, name: from.name },
+          newValue: { id: to.id, name: to.name },
+          createdAt: new Date(at),
         });
         if (rand() < 0.5) {
           entries.push({
-            orgId, dealId, actorId: owner.id, kind: 'field_changed', field: 'arr_growth',
-            oldValue: Math.round(20 + rand() * 100), newValue: values[3]![1], createdAt: new Date(at + 3_600_000),
+            orgId,
+            dealId,
+            actorId: owner.id,
+            kind: 'field_changed',
+            field: 'arr_growth',
+            oldValue: Math.round(20 + rand() * 100),
+            newValue: values[3]![1],
+            createdAt: new Date(at + 3_600_000),
           });
         }
       }

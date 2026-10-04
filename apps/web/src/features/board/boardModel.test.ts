@@ -39,8 +39,14 @@ describe('board model', () => {
 
   it('plans moves to the top and bottom of a column', () => {
     const columns = buildColumns(stages, deals);
-    expect(planMove(columns, 'c', { stageId: 'lead', index: 0 })).toMatchObject({ afterDealId: null, beforeDealId: 'a' });
-    expect(planMove(columns, 'a', { stageId: 'won', index: 5 })).toMatchObject({ afterDealId: 'x', beforeDealId: null });
+    expect(planMove(columns, 'c', { stageId: 'lead', index: 0 })).toMatchObject({
+      afterDealId: null,
+      beforeDealId: 'a',
+    });
+    expect(planMove(columns, 'a', { stageId: 'won', index: 5 })).toMatchObject({
+      afterDealId: 'x',
+      beforeDealId: null,
+    });
   });
 
   it('ignores a drop on the same spot', () => {
