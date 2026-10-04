@@ -124,6 +124,7 @@ export async function seedDemo(db: Db): Promise<void> {
     for (const plan of plans) {
       const owner = pick(team);
       const amountCents = Math.round((0.5 + rand() * 9.5) * 1_000_000) * 100;
+      const dealRound = pick(ROUNDS);
       const created = new Date(now - (20 + Math.floor(rand() * 70)) * DAY);
       const [deal] = await tx
         .insert(deals)
@@ -131,7 +132,7 @@ export async function seedDemo(db: Db): Promise<void> {
           orgId,
           stageId: plan.final.id,
           ownerId: owner.id,
-          name: `${pick(ROUNDS)} – ${plan.company.split(' ')[0]}`,
+          name: `${dealRound} round`,
           company: plan.company,
           amountCents,
           position: keysByStage.get(plan.final.id)!.shift()!,
@@ -142,7 +143,7 @@ export async function seedDemo(db: Db): Promise<void> {
       const dealId = deal!.id;
 
       const values: Array<[typeof round, string | number]> = [
-        [round, pick(ROUNDS)],
+        [round, dealRound],
         [sector, pick(SECTORS)],
         [arr, Math.round((0.2 + rand() * 8) * 1_000_000)],
         [growth, Math.round(20 + rand() * 180)],
