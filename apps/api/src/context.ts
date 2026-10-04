@@ -1,4 +1,6 @@
+import type { Auth } from './auth.js';
 import type { Db } from './db/client.js';
+import type { Loaders } from './graphql/loaders.js';
 import { unauthenticated } from './lib/errors.js';
 
 export interface Viewer {
@@ -8,7 +10,9 @@ export interface Viewer {
 
 export interface Context {
   db: Db;
+  auth: Auth;
   viewer: Viewer | null;
+  loaders: Loaders;
 }
 
 export function requireViewer(ctx: Context): Viewer {

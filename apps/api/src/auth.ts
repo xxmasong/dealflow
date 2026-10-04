@@ -4,7 +4,7 @@ import { jwtVerify, SignJWT } from 'jose';
 import type { Viewer } from './context.js';
 import type { Db } from './db/client.js';
 import { users } from './db/schema.js';
-import { AppError } from './lib/errors.js';
+import { appError } from './lib/errors.js';
 
 const ISSUER = 'dealflow';
 const TOKEN_TTL = '12h';
@@ -42,7 +42,7 @@ export function createAuth(secret: string) {
     // Compare against a dummy hash when the user is missing so response time
     // doesn't reveal which emails exist.
     const ok = await bcrypt.compare(password, user?.passwordHash ?? DUMMY_HASH);
-    if (!user || !ok) throw new AppError('Incorrect email or password', 'UNAUTHENTICATED');
+    if (!user || !ok) throw appError('Incorrect email or password', 'UNAUTHENTICATED');
     return { token: await issueToken({ id: user.id, orgId: user.orgId }), user };
   }
 

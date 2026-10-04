@@ -1,13 +1,12 @@
-import { GraphQLError } from 'graphql';
+import { createGraphQLError } from 'graphql-yoga';
 
-// Errors that are safe to show to the client. Anything else is masked by Yoga
-// as "Unexpected error." so internals never leak.
-export class AppError extends GraphQLError {
-  constructor(message: string, code: 'BAD_USER_INPUT' | 'NOT_FOUND' | 'UNAUTHENTICATED' | 'FORBIDDEN') {
-    super(message, { extensions: { code } });
-  }
-}
+type Code = 'BAD_USER_INPUT' | 'NOT_FOUND' | 'UNAUTHENTICATED' | 'FORBIDDEN';
 
-export const notFound = (what: string) => new AppError(`${what} not found`, 'NOT_FOUND');
-export const badInput = (message: string) => new AppError(message, 'BAD_USER_INPUT');
-export const unauthenticated = () => new AppError('Not signed in', 'UNAUTHENTICATED');
+// Errors that are safe to show to the client. They are created through Yoga's
+// own helper so they share its graphql instance and pass its error masking;
+// anything else reaches the client as "Unexpected error." and internals never leak.
+export const appError = (message: string, code: Code) => createGraphQLError(message, { extensions: { code } });
+
+export const notFound = (what: string) => appError(`${what} not found`, 'NOT_FOUND');
+export const badInput = (message: string) => appError(message, 'BAD_USER_INPUT');
+export const unauthenticated = () => appError('Not signed in', 'UNAUTHENTICATED');
