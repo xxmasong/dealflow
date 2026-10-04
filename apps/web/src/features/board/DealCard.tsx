@@ -35,8 +35,8 @@ export const DealCardBody = memo(function DealCardBody({ deal, roundField }: Omi
         </Typography>
         {round ? <Chip size="small" label={String(round)} variant="outlined" /> : null}
         <Box sx={{ flex: 1 }} />
-        <Typography variant="caption" color="text.secondary">
-          {timeAgo(deal.updatedAt)}
+        <Typography variant="caption" color="text.secondary" noWrap>
+          {timeAgo(deal.updatedAt, Date.now(), true)}
         </Typography>
         {deal.owner && (
           <Tooltip title={deal.owner.name}>
@@ -60,6 +60,8 @@ export function DealCard({ deal, roundField, onOpen }: Props) {
       sx={{
         transform: CSS.Transform.toString(transform),
         transition,
+        // Cards sit in a scrolling flex column; without this they get squashed.
+        flexShrink: 0,
         opacity: isDragging ? 0.35 : 1,
         cursor: 'grab',
         '&:hover': { borderColor: 'primary.light' },

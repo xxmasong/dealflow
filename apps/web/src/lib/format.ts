@@ -18,6 +18,7 @@ export function formatMoney(amountCents: number, currency = 'USD', compact = tru
 }
 
 const relative = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+const relativeShort = new Intl.RelativeTimeFormat('en', { numeric: 'auto', style: 'narrow' });
 const UNITS: Array<[Intl.RelativeTimeFormatUnit, number]> = [
   ['year', 365 * 86_400],
   ['month', 30 * 86_400],
@@ -27,11 +28,12 @@ const UNITS: Array<[Intl.RelativeTimeFormatUnit, number]> = [
   ['minute', 60],
 ];
 
-/** "3 days ago", "just now". */
-export function timeAgo(iso: string, now = Date.now()): string {
+/** "3 days ago", "just now". Pass `short` for narrow spaces: "3d ago". */
+export function timeAgo(iso: string, now = Date.now(), short = false): string {
   const seconds = Math.round((new Date(iso).getTime() - now) / 1000);
+  const fmt = short ? relativeShort : relative;
   for (const [unit, size] of UNITS) {
-    if (Math.abs(seconds) >= size) return relative.format(Math.round(seconds / size), unit);
+    if (Math.abs(seconds) >= size) return fmt.format(Math.round(seconds / size), unit);
   }
   return 'just now';
 }

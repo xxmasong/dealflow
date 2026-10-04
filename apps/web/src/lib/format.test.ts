@@ -13,6 +13,7 @@ describe('format', () => {
     expect(timeAgo('2026-05-10T11:59:50Z', now)).toBe('just now');
     expect(timeAgo('2026-05-07T12:00:00Z', now)).toBe('3 days ago');
     expect(timeAgo('2026-05-09T12:00:00Z', now)).toBe('yesterday');
+    expect(timeAgo('2026-03-10T12:00:00Z', now, true)).toBe('2mo ago');
   });
 
   it('formats ratios as percentages', () => {
