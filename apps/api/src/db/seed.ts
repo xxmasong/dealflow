@@ -76,7 +76,8 @@ export async function seedDemo(db: Db): Promise<void> {
       // Walk each deal some way down the funnel; later stages are rarer.
       let reached = 0;
       while (reached < 3 && rand() < 0.62) reached++;
-      const closed = reached === 3 ? (rand() < 0.45 ? 4 : 5) : rand() < 0.15 ? 5 : null;
+      const r = rand();
+      const closed = reached === 3 ? (r < 0.35 ? 4 : r < 0.6 ? 5 : null) : r < 0.15 ? 5 : null;
       const path = [...Array(reached + 1).keys()].map((i) => pipeline[i]!);
       if (closed !== null) path.push(pipeline[closed]!);
       const final = path.at(-1)!;
