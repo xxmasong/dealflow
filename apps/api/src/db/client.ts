@@ -1,3 +1,4 @@
+import { mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { PGlite } from '@electric-sql/pglite';
 import { drizzle as drizzlePg } from 'drizzle-orm/node-postgres';
@@ -29,7 +30,9 @@ export async function openDatabase(url: string): Promise<Database> {
     return { db: db as unknown as Db, close: () => pool.end() };
   }
 
-  const client = new PGlite(url === 'memory://' ? undefined : url);
+  const inMemory = url === 'memory://';
+  if (!inMemory) mkdirSync(url, { recursive: true });
+  const client = new PGlite(inMemory ? undefined : url);
   const db = drizzlePglite(client, { schema });
   await migratePglite(db, { migrationsFolder });
   return { db, close: () => client.close() };
