@@ -89,7 +89,23 @@ export const BOARD = gql`
 
 export const DEAL = gql`
   ${BOARD_DEAL}
+  ${FIELD_DEFINITION}
   query Deal($id: ID!) {
+    stages {
+      id
+      name
+      position
+      isWon
+      isLost
+    }
+    users {
+      id
+      name
+      email
+    }
+    fieldDefinitions(includeArchived: true) {
+      ...FieldDefinitionParts
+    }
     deal(id: $id) {
       ...BoardDeal
       createdAt
