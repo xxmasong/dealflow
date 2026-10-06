@@ -11,6 +11,8 @@ const Env = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((v) => v === 'true'),
+  /** Restore the demo organisation on this interval, in minutes (0 = never). */
+  DEMO_RESET_MINUTES: z.coerce.number().int().min(0).default(0),
 });
 
 export type Config = z.infer<typeof Env>;

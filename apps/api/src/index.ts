@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 import { createApp } from './app.js';
 import { loadConfig } from './config.js';
 import { openDatabase } from './db/client.js';
-import { DEMO_EMAIL, seedDemo } from './db/seed.js';
+import { DEMO_EMAIL, resetDemo, seedDemo } from './db/seed.js';
 import { createStaticHandler } from './static.js';
 
 const config = loadConfig();
@@ -10,6 +10,17 @@ const { db, close } = await openDatabase(config.DATABASE_URL);
 if (config.SEED_DEMO) {
   await seedDemo(db);
   console.log(`Demo organisation available (${DEMO_EMAIL})`);
+}
+
+// A public demo is writable on purpose, so restore it on a timer to keep the
+// sample data meaningful for the next visitor.
+if (config.DEMO_RESET_MINUTES > 0) {
+  const everyMs = config.DEMO_RESET_MINUTES * 60_000;
+  const timer = setInterval(() => {
+    resetDemo(db).catch((err) => console.error('Demo reset failed:', err));
+  }, everyMs);
+  timer.unref();
+  console.log(`Demo data resets every ${config.DEMO_RESET_MINUTES} minutes`);
 }
 
 const yoga = createApp({

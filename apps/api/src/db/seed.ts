@@ -4,6 +4,7 @@ import type { Db } from './client.js';
 import { dealFieldValues, dealHistory, deals, fieldDefinitions, organizations, stages, users } from './schema.js';
 import { initialKeys } from '../lib/position.js';
 
+export const DEMO_ORG = 'Demo Capital';
 export const DEMO_EMAIL = 'demo@dealflow.dev';
 export const DEMO_PASSWORD = 'demo1234';
 
@@ -61,7 +62,7 @@ export async function seedDemo(db: Db): Promise<void> {
   const now = Date.now();
 
   await db.transaction(async (tx) => {
-    const [org] = await tx.insert(organizations).values({ name: 'Demo Capital' }).returning();
+    const [org] = await tx.insert(organizations).values({ name: DEMO_ORG }).returning();
     const orgId = org!.id;
     const team = await tx
       .insert(users)
@@ -193,4 +194,13 @@ export async function seedDemo(db: Db): Promise<void> {
       await tx.insert(dealHistory).values(entries);
     }
   });
+}
+
+/**
+ * Drops the demo organisation and seeds it again, so a public demo returns to a
+ * known state. Every table cascades from `organizations`, so one delete is enough.
+ */
+export async function resetDemo(db: Db): Promise<void> {
+  await db.delete(organizations).where(eq(organizations.name, DEMO_ORG));
+  await seedDemo(db);
 }
