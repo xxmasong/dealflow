@@ -13,6 +13,8 @@ export interface Context {
   auth: Auth;
   viewer: Viewer | null;
   loaders: Loaders;
+  /** Caller identity for rate limiting: the proxy-forwarded client address. */
+  clientKey: string;
 }
 
 export function requireViewer(ctx: Context): Viewer {

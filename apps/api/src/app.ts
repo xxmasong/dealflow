@@ -12,10 +12,18 @@ export interface AppOptions {
   corsOrigin?: string;
   /** Show GraphiQL at /graphql (development only). */
   graphiql?: boolean;
+  /** Sign-in attempts allowed per client address per minute. */
+  signInLimit?: number;
 }
 
-export function createApp({ db, jwtSecret, corsOrigin, graphiql = false }: AppOptions) {
-  const auth = createAuth(jwtSecret);
+/** Client address for rate limiting, honouring one proxy hop in front of us. */
+function clientKeyFor(request: Request): string {
+  const forwarded = request.headers.get('x-forwarded-for');
+  return forwarded?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
+}
+
+export function createApp({ db, jwtSecret, corsOrigin, graphiql = false, signInLimit }: AppOptions) {
+  const auth = createAuth(jwtSecret, { signInLimit });
   return createYoga<object, Context>({
     schema: createSchema<Context>({ typeDefs, resolvers }),
     graphiql,
@@ -28,6 +36,7 @@ export function createApp({ db, jwtSecret, corsOrigin, graphiql = false }: AppOp
       auth,
       viewer: await auth.viewerFromHeader(request.headers.get('authorization')),
       loaders: createLoaders(db),
+      clientKey: clientKeyFor(request),
     }),
   });
 }

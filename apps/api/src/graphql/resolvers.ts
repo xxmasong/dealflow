@@ -1,6 +1,7 @@
 import { GraphQLScalarType, Kind, type ValueNode } from 'graphql';
 import { eq, asc } from 'drizzle-orm';
 import { requireViewer, type Context } from '../context.js';
+import { rateLimited } from '../lib/errors.js';
 import { stages, users, type Deal, type DealHistoryEntry, type FieldDefinition, type Stage } from '../db/schema.js';
 import * as dealService from '../services/deals.js';
 import * as fieldService from '../services/fieldDefinitions.js';
@@ -64,8 +65,12 @@ export const resolvers = {
   },
 
   Mutation: {
-    login: (_: unknown, args: { email: string; password: string }, ctx: Context) =>
-      ctx.auth.login(ctx.db, args.email, args.password),
+    login: (_: unknown, args: { email: string; password: string }, ctx: Context) => {
+      if (!ctx.auth.allowSignIn(ctx.clientKey)) {
+        throw rateLimited('Too many sign-in attempts. Try again in a minute.');
+      }
+      return ctx.auth.login(ctx.db, args.email, args.password);
+    },
     createDeal: (_: unknown, args: { input: unknown }, ctx: Context) =>
       dealService.createDeal(ctx.db, requireViewer(ctx), args.input),
     updateDeal: (_: unknown, args: { id: string; input: unknown }, ctx: Context) =>

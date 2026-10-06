@@ -5,14 +5,25 @@ import type { Viewer } from './context.js';
 import type { Db } from './db/client.js';
 import { users } from './db/schema.js';
 import { appError } from './lib/errors.js';
+import { createRateLimiter } from './lib/rateLimit.js';
 
 const ISSUER = 'dealflow';
 const TOKEN_TTL = '12h';
 
 export const hashPassword = (password: string) => bcrypt.hash(password, 12);
 
-export function createAuth(secret: string) {
+export interface AuthOptions {
+  /** Sign-in attempts allowed per client address per window. */
+  signInLimit?: number;
+  signInWindowMs?: number;
+}
+
+export function createAuth(secret: string, options: AuthOptions = {}) {
   const key = new TextEncoder().encode(secret);
+  const signIns = createRateLimiter({
+    limit: options.signInLimit ?? 10,
+    windowMs: options.signInWindowMs ?? 60_000,
+  });
 
   async function issueToken(viewer: Viewer): Promise<string> {
     return new SignJWT({ org: viewer.orgId })
@@ -46,7 +57,7 @@ export function createAuth(secret: string) {
     return { token: await issueToken({ id: user.id, orgId: user.orgId }), user };
   }
 
-  return { issueToken, viewerFromHeader, login };
+  return { issueToken, viewerFromHeader, login, allowSignIn: signIns.take };
 }
 
 export type Auth = ReturnType<typeof createAuth>;

@@ -11,7 +11,7 @@ beforeAll(async () => {
   database = await openDatabase('memory://');
   await seedDemo(database.db);
   await seedDemo(database.db); // idempotent
-  app = createApp({ db: database.db, jwtSecret: 'integration-test-secret-0123456789' });
+  app = createApp({ db: database.db, jwtSecret: 'integration-test-secret-0123456789', signInLimit: 5 });
 });
 afterAll(async () => {
   await database.close();
@@ -92,5 +92,21 @@ describe('GraphQL API', () => {
   it('rejects a wrong password', async () => {
     const r = await gql(`mutation { login(email: "${DEMO_EMAIL}", password: "nope") { token } }`);
     expect(r.errors?.[0]?.message).toBe('Incorrect email or password');
+  });
+
+  it('rate limits repeated sign-in attempts from one address', async () => {
+    const attempt = async () => {
+      const res = await app.fetch('http://test/graphql', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-forwarded-for': '203.0.113.9' },
+        body: JSON.stringify({ query: `mutation { login(email: "x@y.test", password: "nope") { token } }` }),
+      });
+      return (await res.json()) as { errors?: Array<{ extensions?: { code?: string } }> };
+    };
+
+    const codes: Array<string | undefined> = [];
+    for (let i = 0; i < 7; i++) codes.push((await attempt()).errors?.[0]?.extensions?.code);
+    expect(codes.slice(0, 5)).toEqual(Array(5).fill('UNAUTHENTICATED'));
+    expect(codes.at(-1)).toBe('RATE_LIMITED');
   });
 });
